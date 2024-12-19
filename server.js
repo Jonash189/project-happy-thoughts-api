@@ -2,6 +2,9 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
+import cors from "cors";
+
+app.use(cors());
 dotenv.config();
 
 
