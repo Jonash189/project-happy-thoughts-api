@@ -2,12 +2,8 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
-import cors from "cors";
 
-app.use(cors());
 dotenv.config();
-
-
 
 const port = process.env.PORT || 8081;
 const app = express();
@@ -18,7 +14,6 @@ app.use(express.json());
 
 // Mongoose connection
 const mongoUrl = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/happyThoughts";
-
 mongoose.connect(mongoUrl, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -33,11 +28,8 @@ mongoose.connection.on("error", (error) => {
   console.error("Error connecting to MongoDB:", error);
 });
 
-
-const { Schema, model } = mongoose;
-
-// Thought schema
-const thoughtSchema = new Schema({
+// Mongoose schema and model
+const thoughtSchema = new mongoose.Schema({
   message: {
     type: String,
     required: true,
@@ -54,7 +46,7 @@ const thoughtSchema = new Schema({
   },
 });
 
-const Thought = model("Thought", thoughtSchema);
+const Thought = mongoose.model("Thought", thoughtSchema);
 
 // Root endpoint
 app.get("/", (req, res) => {
@@ -81,11 +73,7 @@ app.post("/thoughts", async (req, res) => {
 
   try {
     const thought = await new Thought({ message }).save();
-    res.status(201).json({
-      success: true,
-      message: "Thought created successfully!",
-      data: thought,
-    });
+    res.status(201).json(thought);
   } catch (error) {
     res.status(400).json({
       success: false,
@@ -103,7 +91,7 @@ app.post("/thoughts/:thoughtId/like", async (req, res) => {
     const updatedThought = await Thought.findByIdAndUpdate(
       thoughtId,
       { $inc: { hearts: 1 } },
-      { new: true }
+      { new: true } // Return the updated document
     );
 
     if (!updatedThought) {
@@ -113,11 +101,7 @@ app.post("/thoughts/:thoughtId/like", async (req, res) => {
       });
     }
 
-    res.status(200).json({
-      success: true,
-      message: "Like added successfully!",
-      data: updatedThought,
-    });
+    res.status(200).json(updatedThought);
   } catch (error) {
     res.status(400).json({
       success: false,
